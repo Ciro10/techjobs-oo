@@ -1,5 +1,10 @@
 package org.launchcode.controllers;
 
+import org.launchcode.models.Employer;
+import org.launchcode.models.Job;
+import org.launchcode.models.JobField;
+import org.launchcode.models.JobFieldType;
+import org.launchcode.models.data.JobFieldData;
 import org.launchcode.models.forms.JobForm;
 import org.launchcode.models.data.JobData;
 import org.springframework.stereotype.Controller;
@@ -9,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 
 /**
  * Created by LaunchCode
@@ -24,6 +30,8 @@ public class JobController {
     public String index(Model model, int id) {
 
         // TODO #1 - get the Job with the given ID and pass it into the view
+        model.addAttribute("title", "My Job");
+        model.addAttribute("job", jobData.findById(id));
 
         return "job-detail";
     }
@@ -41,7 +49,24 @@ public class JobController {
         // new Job and add it to the jobData data store. Then
         // redirect to the job detail view for the new Job.
 
-        return "";
+        if (errors.hasErrors()){
+            model.addAttribute("title","New Job");
+            return "job/add";
+        }
+
+        Job newjob = new Job();
+
+        newjob.setName(jobForm.getName());
+        newjob.setEmployer(jobData.getEmployers().findById(jobForm.getEmployerId()));
+        newjob.setLocation(jobData.getLocations().findById(jobForm.getLocationId()));
+        newjob.setCoreCompetency(jobData.getCoreCompetencies().findById(jobForm.getCorecompetencyId()));
+        newjob.setPositionType(jobData.getPositionTypes().findById(jobForm.getPositiontypeId()));
+
+        jobData.add(newjob);
+        model.addAttribute("job",newjob);
+
+
+        return "job-detail";
 
     }
 }
